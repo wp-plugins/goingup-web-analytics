@@ -1,15 +1,92 @@
 <?php
+
+if (!function_exists('gustats_getcontent')){
+function gustats_getcontent($url,$user_agent=''){
+	$url_parsed = parse_url($url);
+    if ( empty($url_parsed['scheme']) ) {
+        $url_parsed = parse_url('http://'.$url);
+    }
+    $rtn['url'] = $url_parsed;
+
+    $port = $url_parsed["port"];
+    if ( !$port ) {
+        $port = 80;
+    }
+    $rtn['url']['port'] = $port;
+    
+    $path = $url_parsed["path"];
+    if ( empty($path) ) {
+            $path="/";
+    }
+    if ( !empty($url_parsed["query"]) ) {
+        $path .= "?".$url_parsed["query"];
+    }
+    $rtn['url']['path'] = $path;
+
+    $host = $url_parsed["host"];
+    $foundBody = false;
+
+   
+    
+    $out = "GET $path HTTP/1.0\r\n";
+    $out .= "Host: $host\r\n";
+    if ($user_agent){
+    	$out .= "user-agent: ".$user_agent;
+    }
+    $out .= "Connection: Close\r\n\r\n";
+
+    if ( !$fp = @fsockopen($host, $port, $errno, $errstr, 30) ) {
+        $rtn['errornumber'] = $errno;
+        $rtn['errorstring'] = $errstr;
+        return $rtn;
+    }
+    fwrite($fp, $out);
+    while (!feof($fp)) {
+        $s = fgets($fp, 128);
+        if ( $s == "\r\n" ) {
+            $foundBody = true;
+            continue;
+        }
+        if ( $foundBody ) {
+            $body .= $s;
+        } else {
+            if ( ($followRedirects) && (stristr($s, "location:") != false) ) {
+                $redirect = preg_replace("/location:/i", "", $s);
+                return HttpGet( trim($redirect) );
+            }
+            $header .= $s;
+        }
+    }
+    fclose($fp);
+
+    $__ = explode("\n",$header);
+    $___ = explode(" ",$__[0]);
+    
+    $rtn['header'] = ($header);
+    $rtn['http_code'] = trim($___[1]);
+    $rtn['http_header'] = trim($__[0]);
+    $rtn['body'] = trim($body);
+    return $rtn;
+}
+}
+
 if(isset($_GET[apiKey]) and isset($_GET[ws])){
-$fcont = join ('', file ("http://goingup.com/xml/serialized.php?api=$_GET[apiKey]&ws=$_GET[ws]")) or die("<table width=300>
-	<tr>
-		<td colspan=2>&nbsp;</td>
-	</tr>
-	<tr>
-		<td align=center colspan=2><span style='font-size:10px;'>You're not GoingUp! Please configure the SMF plugin for GoingUp! now.</span></td>
-	</tr>
-	</table>");
+	
+	$res = gustats_getcontent ("http://www.goingup.com/xml/serialized.php?api=".$_GET['apiKey']."&ws=".$_GET['ws']);
+
+	$fcont = $res['body'];
+	if ($fcont==''){
+		die("<table width=300>
+			<tr>
+				<td colspan=2>&nbsp;</td>
+			</tr>
+			<tr>
+				<td align=center colspan=2><span style='font-size:10px;'>You're not GoingUp! Please configure the SMF plugin for GoingUp! now.</span></td>
+			</tr>
+			</table>");
+	}
 $web_details = unserialize($fcont);
-if(isset($web_details[0]['total']) or $web_details[0]['total'] <> ""){
+if($web_details){
 ?>
 <script>
 	function fiximage(img){
@@ -30,34 +107,19 @@ if(isset($web_details[0]['total']) or $web_details[0]['total'] <> ""){
 
 	fiximage(document.getElementById("img_trend"));
 </script>
-	<table width=200>
-	<tr>
-		<td align=left colspan=2><span style="color:#000000; font-size:20px;">&nbsp;Visitors</span></td>
-	</tr>
-	<tr>
-		<td align=left width=70><img id="img_trend" name="img_trend" src="<?=$web_details[0]['trend_image']?>"></td>
-		<td align=left>
-			<table>
-			<tr>
-				<td align=left>
-					<span style="color:#59AB0B; font-size:20px;"><?=$web_details[0]['month']?></span><br>
-					<span style="color:#59AB0B;font-weight:bold; font-size:16px;"><?=$web_details[0]['trend_percent']?></span>
-				</td>
-			</tr>
-			</table>
-		</td>
-	</tr>
-	<tr>
-		<td colspan=2 align=left>
-			<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="290" height="120" id="" >
-			<param name="movie" value="http://www.goingup.com/FusionCharts/Charts/MSLine.swf" />
-			<param name="FlashVars" value="&dataURL=http%3A//www.goingup.com/xml/charts/gu_chart.php%3Fws%3D<?=$_GET[ws]?>%26search_type%3Ddefined%26show_type%3Ddaily%26show_options%255B0%255D%3Dpages%26show_options%255B1%255D%3Dvisitors%26show_options%255B2%255D%3Dreturning_visitors%26api%3D<?=$_GET[apiKey]?>">
-			<param name="quality" value="high" />
-			<embed src="http://www.goingup.com/FusionCharts/Charts/MSLine.swf" flashVars="&dataURL=http%3A//www.goingup.com/xml/charts/gu_chart.php%3Fws%3D<?=$_GET[ws]?>%26search_type%3Ddefined%26show_type%3Ddaily%26show_options%255B0%255D%3Dpages%26show_options%255B1%255D%3Dvisitors%26show_options%255B2%255D%3Dreturning_visitors%26api%3D<?=$_GET[apiKey]?>"  quality ="high" width="290" height="120" name="" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />
-			</object>
-		</td>
-	</tr>
-	</table>
+<?php  //$f = fopen("log_file.log","w"); if(!print_r($web_details)) echo "Error"; fclose($f);  ?>
+<? 
+$gu_track_host = urlencode("http://".$_SERVER['HTTP_HOST']);
+$gu_track_referrer = urlencode($_SERVER['HTTP_REFERER']);
+$gu_track_ipadress = urlencode($_SERVER['REMOTE_ADDR']);
+$gu_track_agent = urlencode($_SERVER['HTTP_USER_AGENT']);
+$gu_track_uri = urlencode($_SERVER['REQUEST_URI']);
+$gu_track_websiteid = $_GET['ws'];
+$gu_track_urlparams = "st=".$gu_track_websiteid."&vip=".$gu_track_ipadress."&cur=".$gu_track_host.$gu_track_uri."&ref=".$gu_track_referrer."&ua=".$gu_track_agent."&b=5";
+
+$res = gustats_getcontent("http://counter.goingup.com/phptrack.php?".$gu_track_urlparams);
+echo $res['body']; 
+?>
 <?php }else{?>
 	<table width=300>
 	<tr>

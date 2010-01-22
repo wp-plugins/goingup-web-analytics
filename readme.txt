@@ -2,9 +2,9 @@
 Contributors: GoingUp!
 Donate link: http://www.goingup.com/
 Tags: web analytics, traffic, seo
-Requires at least: 2.0.2
-Tested up to: 2.1
-Stable tag: 1.0.4
+Requires at least: 2.1
+Tested up to: 2.9.1
+Stable tag: 1.0.5
 
 
 == Description ==
