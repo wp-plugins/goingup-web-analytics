@@ -87,6 +87,7 @@ if(isset($_GET[apiKey]) and isset($_GET[ws])){
 	}
 $web_details = unserialize($fcont);
 if($web_details){
+	
 ?>
 <script>
 	function fiximage(img){
