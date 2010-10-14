@@ -26,7 +26,7 @@ And about a dozen other reports.
 
 Installation is a breeze.. 
 
-1. Upload the folder 'gustats' to the `/wp-content/plugins/` directory
+1. Upload the folder 'goingup-web-analytics' to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Visit 'Options' -> GoingUp! and enter your GoingUp API and website code.
    (Hint: Visit http://www.goingup.com now and get your free account. It's a three minute process.)
