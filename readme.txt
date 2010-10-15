@@ -12,14 +12,15 @@ Stable tag: 2.0.1
 GoingUp! is a free web site analytics application that offers a comprehensive visitor traffic count that includes:
 
 
-*   SiteSpy - Watch in real time what visitors are doing at your site
-*   Traffic Summary
+*   Comprehensive Visitor Statistics and Analytics
+*   Page Rank History
 *   Popular Pages
 *   Entry and Exit Pages
-*   Keyword Analysis
+*   Keyword research, tracking and history
 *   Search Engine Referrals
+*   Heat Maps (shows the popular items clicked on your web page)
 
-And about a dozen other reports.
+And numerous other tools you need.
 
     
 == Installation ==
