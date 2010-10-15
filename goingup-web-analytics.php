@@ -126,150 +126,23 @@ function gustats_admin_menu(){
 	add_option('gstats_ws_key', '', 'GoingUp! stats ws key');
 }
 
-function gustat_header(){
-	$workdir = get_option('siteurl')."/".PLUGINDIR."/goingup-web-analytics/";
-	$api_key = get_option('gstats_api_key');
-	$ws_key = get_option('gstats_ws_key');
-	?>
-	<script language="JavaScript" type="text/javascript"><!-- // -->
-	var popupTimer = null;
-	var rowPopupContents = new Object();
-	var xmlHttp = null;
-	var apiKey = '<? echo $api_key;?>';
-	var ws = '<? echo $ws_key;?>';
-	
-	function findPos(obj) {
-		var curleft = curtop = 0;
-		if (obj.offsetParent) {
-			curleft = obj.offsetLeft
-			curtop = obj.offsetTop
-			while (obj = obj.offsetParent) {
-				curleft += obj.offsetLeft
-				curtop += obj.offsetTop
-			}
-		}
-		return [curleft,curtop];
-	}
-
-	// Get a XMLHttpObject for different browsers
-	function GetXmlHttpObject(){
-		try{
-			// Firefox, Opera 8.0+, Safari
-			xmlHttp = new XMLHttpRequest();
-		}catch (e){
-			// Internet Explorer
-			try{
-				xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
-			}catch (e){
-				xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
-			}
-		}
-		return xmlHttp;
-	}
-
-	function showHint(apiKey, ws){
-		xmlHttp = GetXmlHttpObject();
-
-		if (xmlHttp == null){
-			return;
-		}
-		
-		var url = "<?=$workdir?>Take.php";
-		url = url+"?apiKey="+apiKey+"&ws="+ws;
-
-		xmlHttp.onreadystatechange = stateChanged;
-		xmlHttp.open("GET",url,true);
-		xmlHttp.send(null);
-	}
-	// take state
-	function stateChanged(){ 
-		if (xmlHttp.readyState == 4){
-			var popup_content = document.getElementById('row_popup_content');
-			popup_content.innerHTML = xmlHttp.responseText;
-		}
-	}
-
-	function showPopupTimer(){
-		clearTimeout(popupTimer);
-		popupTimer = setTimeout('showRowPopup()',300);
-	}
-
-	function showRowPopup(){
-		var popupob = document.getElementById('row_popup');
-		var gupob = document.getElementById('row_gu');
-		var popup_content = document.getElementById('row_popup_content');
-		var gu_pos = findPos(gupob);
-
-		var loading_content = '<div stlye="width:100%; height:100%; margin:30px; vertical-align:middle; text-align:center"><br><span style="color:#111111; font-size:10px">Retrieving Data. Please Wait.</span></div>';
-		popupob.style.left = gu_pos[0] + 250 + "px";
-		popupob.style.top = gu_pos[1] - 250 + "px";
-		
-		if (popupob.style.display!='block'){
-			popupob.style.visibility = 'visible';
-			popupob.style.display = 'block';
-			popup_content.innerHTML = loading_content;
-		}
-		fillRowPopup();
-	}
-
-	function fillRowPopup(){
-		showHint(apiKey,ws);
-	}
-	
-	function hideRowPopup(){
-		clearTimeout(popupTimer);
-		var popupob = document.getElementById('row_popup');
-		popupob.style.visibility = 'hidden';
-		popupob.style.display = 'none';
-	}
-
-	</script>
-<?
-}
-
 function gustat_footer(){
 	$workdir = get_option('siteurl')."/".PLUGINDIR."/goingup-web-analytics/";
 	$api_key = get_option('gstats_api_key');	
 	$ws_key = get_option('gstats_ws_key');
 	
-	?>
-	<?php if (isset($ws_key) and isset($api_key)) 
-{
-	$gu_track_host = urlencode("http://".$_SERVER['HTTP_HOST']);
-	$gu_track_referrer = urlencode($_SERVER['HTTP_REFERER']);
-	$gu_track_ipadress = urlencode($_SERVER['REMOTE_ADDR']);
-	$gu_track_agent = urlencode($_SERVER['HTTP_USER_AGENT']);
-	$gu_track_uri = urlencode($_SERVER['REQUEST_URI']);
-	$gu_track_websiteid = $ws_key;
-	$gu_track_urlparams = "st=".$gu_track_websiteid."&vip=".$gu_track_ipadress."&cur=".$gu_track_host.$gu_track_uri."&ref=".$gu_track_referrer."&ua=".$gu_track_agent."&b=5";
-	$res = gustats_getcontent("http://counter.goingup.com/phptrack.php?".$gu_track_urlparams);
-	echo "<div style=\"display:none\">".$res['body']."</div>";
+	if (isset($ws_key) and isset($api_key))	{
+		$gu_track_host = urlencode("http://".$_SERVER['HTTP_HOST']);
+		$gu_track_referrer = urlencode($_SERVER['HTTP_REFERER']);
+		$gu_track_ipadress = urlencode($_SERVER['REMOTE_ADDR']);
+		$gu_track_agent = urlencode($_SERVER['HTTP_USER_AGENT']);
+		$gu_track_uri = urlencode($_SERVER['REQUEST_URI']);
+		$gu_track_websiteid = $ws_key;
+		$gu_track_urlparams = "st=".$gu_track_websiteid."&vip=".$gu_track_ipadress."&cur=".$gu_track_host.$gu_track_uri."&ref=".$gu_track_referrer."&ua=".$gu_track_agent."&b=5";
+		$res = gustats_getcontent("http://counter.goingup.com/phptrack.php?".$gu_track_urlparams);
+		echo "<div style=\"display:none\">".$res['body']."</div>";
 	
+	}
 }
-else
-{?>
-	<div id="row_gu">
-		<a href="http://www.goingup.com/" onmouseover="showPopupTimer();" onmouseout="hideRowPopup();"><img id='gu' src="<?=$workdir?>badge.gif" width="120" height="30" border="0"></a>
-	</div>
-<div id="row_popup" style="background:no-repeat; position:absolute; width:290px; height:229px; display:none; visibility:hidden; padding:4px 20px 20px 20px;" 
-	<div style="color:#FFFFFF; font-weight:bold; margin:4px;">GoingUp! Site Health Trend</div>
-	<div id=row_popup_content></div>
-	<script language="javascript">
-		var arVersion = navigator.appVersion.split("MSIE");
-		var version = parseFloat(arVersion[1]);
-		
-		if ((version >= 5.5) && (document.body.filters)) {
-			document.getElementById('row_popup').style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?=$workdir?>bg.png', sizingMethod='scale');";
-		}else{
-			document.getElementById('row_popup').style.backgroundImage = "url(\'<?=$workdir?>bg.png\');";
-		}
-	</script>
-
-</div>
-<?php	
-}?>
-<?
-}
-add_action('wp_head', 'gustat_header');
 add_action('admin_menu', 'gustats_admin_menu');
 add_action('wp_footer', 'gustat_footer');
