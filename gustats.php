@@ -4,7 +4,7 @@ Plugin Name: GoingUp! Web Analytics
 Plugin URI: http://www.goingup.com/
 Description: GoingUp! Web Analytics is an advanced website traffic and visitor analytics application which offers comprehensive visitor activity as well as search engine optimization and site ranking. Free to use, start GoingUp! today!.
 Author: GoingUP!
-Version: 1.1
+Version: 2.0.1
 
 Requires WordPress 2.1 or later. Not for use with WPMU.
 */
