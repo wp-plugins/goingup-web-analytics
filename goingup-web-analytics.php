@@ -122,8 +122,8 @@ function gustats_set(){
 
 function gustats_admin_menu(){
 	add_submenu_page('options-general.php', __('GoingUp! Web Analytics'), __('GoingUp! Web Analytics'), 'manage_options', 'gustats', 'gustats_set');
-	add_option('gstats_api_key', '', 'GoingUp! stats api key');
-	add_option('gstats_ws_key', '', 'GoingUp! stats ws key');
+	add_option('gstats_api_key', '', 'GoingUp! API Key');
+	add_option('gstats_ws_key', '', 'GoingUp! Site ID');
 }
 
 function gustat_footer(){
