@@ -1,7 +1,7 @@
 === Plugin Name ===
 Contributors: GoingUp!
 Donate link: http://www.goingup.com/
-Tags: web analytics, traffic, seo
+Tags: web analytics, traffic, seo, pagerank, heat maps, live chat
 Requires at least: 2.1
 Tested up to: 3.9.1
 Stable tag: 3.9.1
@@ -29,7 +29,7 @@ Installation is a breeze..
 
 1. Upload the folder 'goingup-web-analytics' to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Visit 'Options' -> GoingUp! and enter your GoingUp API and website code.
+3. Visit 'Settings' -> GoingUp! and enter your GoingUp API and website code.
    (Hint: Visit http://www.goingup.com now and get your free account. It's a three minute process.)
 
 
