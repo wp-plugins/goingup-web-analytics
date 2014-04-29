@@ -3,13 +3,13 @@ Contributors: GoingUp!
 Donate link: http://www.goingup.com/
 Tags: web analytics, traffic, seo
 Requires at least: 2.1
-Tested up to: 3.5.1
-Stable tag: 3.5.1
+Tested up to: 3.9.1
+Stable tag: 3.9.1
 
 
 == Description ==
 
-GoingUp! is a free web site analytics application that offers a comprehensive visitor traffic count that includes:
+GoingUp! is a free web site analytics and SEO application that offers a comprehensive visitor traffic count that includes:
 
 
 *   Comprehensive Visitor Statistics and Analytics
