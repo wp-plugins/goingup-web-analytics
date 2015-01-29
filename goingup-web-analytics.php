@@ -4,7 +4,7 @@ Plugin Name: GoingUp! Web Analytics
 Plugin URI: http://www.goingup.com/
 Description: GoingUp! Web Analytics is an advanced website traffic, SEO, and visitor analytics application which offers comprehensive visitor activity as well as search engine optimization and site ranking. Free to use, start GoingUp! today!.
 Author: GoingUP!
-Version: 4.0.0
+Version: 4.1.0
 
 */
 
@@ -13,36 +13,73 @@ function gustats_getcontent($url,$user_agent=''){
 	$tries = 0;
 	$maxTries = 5;
 	$repeat = true;
+	
+	$rtn = array(
+		'http_code' => null,
+		'http_hreader' => null,
+		'body' => null,
+		'error' => null,
+	);
+	
 	do {
 		$tries++;
 		if ($tries >= $maxTries) {
 			$repeat = false;
 			break;
 		}
+		
+		if (function_exists('curl_exec')){
+		
+			$chx = curl_init();
+			curl_setopt($chx, CURLOPT_URL, $url);
+			curl_setopt($chx, CURLOPT_HEADER, 0);
+			curl_setopt($chx, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($chx, CURLOPT_FRESH_CONNECT, true);
+			curl_setopt($chx, CURLOPT_FOLLOWLOCATION, true);
+			curl_setopt($chx, CURLOPT_CONNECTTIMEOUT, 60);
+			curl_setopt($chx, CURLOPT_TIMEOUT, 60);
+			curl_setopt($chx, CURLOPT_USERAGENT, ($user_agent ? $user_agent : "Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0"));
+			curl_setopt($chx, CURLOPT_VERBOSE, 0);
+			curl_setopt($chx, CURLOPT_SSL_VERIFYHOST, 0);
+			curl_setopt($chx, CURLOPT_SSL_VERIFYPEER, FALSE);
 
-		$rtn = array(
-			'http_code' => null,
-			'http_hreader' => null,
-			'body' => null
-		);
+			$result = @curl_exec($chx);
+			$curl_info = curl_getinfo($chx);
+			curl_close($chx);
 
-		// Create a stream
-		$opts = array(
-			'http'=>array(
-				'method'=>"GET",
-				'header'=>"Cache-Control:no-cache,no-store\r\n".
-				          "Connection:close\r\n"
-			)
-		);
-		$context = stream_context_create($opts);
-		// Open the file using the HTTP headers set above
-		$file = file_get_contents($url, false, $context);
-		if($http_response_header) {
-			foreach ($http_response_header as $header) {
-				if ($header == "HTTP/1.1 200 OK") {
-					$repeat = false;
-					$rtn['http_code'] = 200;
-					$rtn['body'] = $file;
+			if ($curl_info && $curl_info['http_code'] == 200 && $result) {
+				$repeat = false;
+				$rtn['http_code'] = 200;
+				$rtn['body'] = $result;
+			} else {
+				if ($curl_info) {
+					$rtn['error'] = 'Response Code: '.$curl_info['http_code'].'<br/>Content: '.($result ? $result : 'empty');
+				} else {
+					$rnt['error'] = 'Timedout';
+				}
+			}
+			
+		} else {
+		
+			// Create a stream
+			$opts = array(
+				'http'=>array(
+					'method'=>"GET",
+					'header'=>"Cache-Control:no-cache,no-store\r\n".
+							  "Connection:close\r\n"
+				)
+			);
+			$context = stream_context_create($opts);
+			// Open the file using the HTTP headers set above
+			$file = file_get_contents($url, false, $context);
+			$rtn['error'] = 'Content: '.$file;
+			if($http_response_header) {
+				foreach ($http_response_header as $header) {
+					if ($header == "HTTP/1.1 200 OK") {
+						$repeat = false;
+						$rtn['http_code'] = 200;
+						$rtn['body'] = $file;
+					}
 				}
 			}
 		}
@@ -61,7 +98,10 @@ function gustats_set(){
 	if(!empty($_POST[api_key]) AND !empty($_POST[ws_key])){
 		$res = gustats_getcontent("http://www.goingup.com/xml/serialized.php?api=".$_POST['api_key']."&ws=".$_POST['ws_key']."&rand=".mt_rand());
 		if ($res['http_code']!='200'){
-			echo "<center><span style='color:red;'><strong>" . __("There is communication problem with www.goingup.com") . "</strong></span><br/></center>";
+			echo "<center><span style='color:red;'><strong>" . __("There is communication problem with www.goingup.com") . "</strong></span><br/></center><br/><br/>";
+			if ($res['error']) {
+				echo "Error Details<br/>".$res['error'];
+			}
 		}else{
 			$fcont = $res['body'];
 			$web_details = unserialize($fcont);

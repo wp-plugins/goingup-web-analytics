@@ -3,8 +3,8 @@ Contributors: GoingUp!
 Donate link: http://www.goingup.com/
 Tags: web analytics, traffic, seo
 Requires at least: 2.1
-Tested up to: 4.0.0
-Stable tag: 4.0.0
+Tested up to: 4.1.0
+Stable tag: 4.1.0
 
 
 == Description ==
@@ -32,6 +32,10 @@ Installation is a breeze..
 3. Visit 'Options' -> GoingUp! and enter your GoingUp API and website code.
    (Hint: Visit http://www.goingup.com now and get your free account. It's a three minute process.)
 
+== Requirements == 
+
+1. PHP Curl OR
+2. allow_url_fopen = true
 
 == Frequently Asked Questions ==
 
