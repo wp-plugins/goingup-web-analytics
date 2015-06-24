@@ -4,7 +4,7 @@ Plugin Name: GoingUp! Web Analytics
 Plugin URI: http://www.goingup.com/
 Description: GoingUp! Web Analytics is an advanced website traffic, SEO, and visitor analytics application which offers comprehensive visitor activity as well as search engine optimization and site ranking. Free to use, start GoingUp! today!.
 Author: GoingUP!
-Version: 4.1.0
+Version: 4.1.1
 
 */
 
@@ -13,23 +13,23 @@ function gustats_getcontent($url,$user_agent=''){
 	$tries = 0;
 	$maxTries = 5;
 	$repeat = true;
-	
+
 	$rtn = array(
 		'http_code' => null,
 		'http_hreader' => null,
 		'body' => null,
 		'error' => null,
 	);
-	
+
 	do {
 		$tries++;
 		if ($tries >= $maxTries) {
 			$repeat = false;
 			break;
 		}
-		
+
 		if (function_exists('curl_exec')){
-		
+
 			$chx = curl_init();
 			curl_setopt($chx, CURLOPT_URL, $url);
 			curl_setopt($chx, CURLOPT_HEADER, 0);
@@ -58,9 +58,9 @@ function gustats_getcontent($url,$user_agent=''){
 					$rnt['error'] = 'Timedout';
 				}
 			}
-			
+
 		} else {
-		
+
 			// Create a stream
 			$opts = array(
 				'http'=>array(
@@ -159,7 +159,7 @@ function gustat_footer(){
 		$gu_track_uri = urlencode($_SERVER['REQUEST_URI']);
 		$gu_track_websiteid = $ws_key;
 		$gu_track_urlparams = "st=".$gu_track_websiteid."&vip=".$gu_track_ipadress."&cur=".$gu_track_host.$gu_track_uri."&ref=".$gu_track_referrer."&ua=".$gu_track_agent."&b=5&rand=".mt_rand();
-		$res = gustats_getcontent("http://counter.goingup.com/phptrack.php?".$gu_track_urlparams);
+		$res = gustats_getcontent("http://counter.goingup.com/visitor.php?".$gu_track_urlparams);
 		echo "<div style=\"display:none\">".$res['body']."</div>";
 
 	}
@@ -176,8 +176,7 @@ function gustat_head(){
     }
 }
 /* settings link in plugin management screen */
-function gustats_admin_menu_link($actions, $file) {
-	echo $file."felipe";
+function gustats_admin_menu_link($actions, $file) {	
 	if(stripos($file, 'goingup-web-analytics') !== false) {
 		$actions['settings'] = '<a href="options-general.php?page=gustats">Settings</a>';
 	}
